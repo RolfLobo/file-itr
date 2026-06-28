@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Never commit personal tax data
+*.json.personal
+*ChallanReceipt*
+*ACK*
+*AIS*
+*26AS*
+*Form16*
+*Preview*
