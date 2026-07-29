@@ -61,6 +61,34 @@ _IK_80 = "https://indiankanoon.org/doc/1502697/"
 # of the virtual digital asset … against income computed under any provision of
 # this Act … and such loss shall not be allowed to be carried forward".
 _CLEARTAX_SETOFF = "https://cleartax.in/s/set-off-carry-forward-capital-losses"
+# Phase 3 rate sources, verified by WebFetch (2026-07-29):
+# cleartax slab-rates page — states the FY 2025-26 new-regime slabs
+# (4/8/12/16/20/24L at 0/5/10/15/20/25/30%), 87A new ₹60,000 ≤ ₹12L
+# slab-income-only with marginal relief, old-regime slabs incl. senior (3L) and
+# super-senior (5L) basic exemption, and 87A old ₹12,500 ≤ ₹5L. The official
+# PIB Budget-2025 releases (PRID 2098352/2098353) corroborate the slabs and
+# rebate via search summaries but return HTTP 403 to direct fetch — cleartax is
+# the WebFetch-verified citation, PIB kept as the (unfetchable) official trail.
+_CLEARTAX_SLABS = "https://cleartax.in/c/income-tax-slab-rates"
+_PIB_BUDGET_2025 = "https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2098353&reg=3&lang=2"
+# bajajamc Budget-2024 CG explainer — "increased from 15% to 20%" (111A),
+# "risen from 10% to 12.5%" (112A), exemption "from Rs 1 lakh to Rs 1.25 lakh".
+_BAJAJAMC_CG = "https://www.bajajamc.com/knowledge-centre/union-budget-2024-new-mutual-funds-capital-gains-tax-explained"
+# cleartax s.112 page — 12.5% without indexation; also documents the resident
+# option for immovable property: "20% with indexation OR 12.5% without".
+_CLEARTAX_112 = "https://cleartax.in/s/section-112-calculate-income-tax-on-long-term-capital-gains"
+# quicko s.112 page — residents "can benefit from adjusting the special rate
+# income against the basic exemption limit"; non-residents excluded.
+_QUICKO_112 = "https://learn.quicko.com/section-112-of-income-tax-act-capital-gain-long-term-capital-assets"
+_UPSTOX_BEL = "https://upstox.com/news/personal-finance/tax/can-i-adjust-stcg-ltcg-against-the-basic-exemption-limit-under-both-old-and-new-tax-regimes/article-165394/"
+# cleartax surcharge page — 10/15/25/37% at 50L/1cr/2cr/5cr, new-regime cap
+# 25%, "Surcharge has been capped at 15% on dividend income and Capital gains
+# covered under section 111A, 112 and 112A", marginal-relief principle.
+_CLEARTAX_SURCHARGE = "https://cleartax.in/s/marginal-relief-surcharge"
+_CLEARTAX_CESS = "https://cleartax.in/s/cess-on-income-tax"
+# charteredclub 288A/288B page — both round to nearest ₹10, paise ignored,
+# last digit >= 5 up, < 5 down.
+_CC_288 = "https://www.charteredclub.com/rounding-off-in-income-tax-section-288a-288b/"
 
 TABLE = RuleTable([
     Rule(key="holding.listed_equity.lt_months", value=12,
@@ -135,4 +163,114 @@ TABLE = RuleTable([
                         "rates. Policy: within each term, slab buckets before concession "
                         "buckets; LTCL (restricted, s.70(3)) gets first claim on LTCG before "
                         "STCL spillover. Revisit against the ITD utility in Phase 3+."),
+    # --- Phase 3: rate application ---
+    # Slab tuples: (upper_bound_or_None, rate_str), cumulative from 0.
+    Rule(key="slab.new_regime",
+         value=((400000, "0"), (800000, "0.05"), (1200000, "0.10"), (1600000, "0.15"),
+                (2000000, "0.20"), (2400000, "0.25"), (None, "0.30")),
+         authority="s.115BAC(1A) as amended by Finance Act 2025 — FY 2025-26 slabs",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="slab.old_below60",
+         value=((250000, "0"), (500000, "0.05"), (1000000, "0.20"), (None, "0.30")),
+         authority="Finance Act rates, old regime, individual below 60",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="slab.old_senior",
+         value=((300000, "0"), (500000, "0.05"), (1000000, "0.20"), (None, "0.30")),
+         authority="Finance Act rates, old regime, senior citizen (60-79)",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="slab.old_super_senior",
+         value=((500000, "0"), (1000000, "0.20"), (None, "0.30")),
+         authority="Finance Act rates, old regime, super senior (80+)",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="rebate.87a_new", value={"threshold": 1200000, "max": 60000},
+         authority="s.87A (Finance Act 2025) — new regime: rebate up to ₹60,000 where total "
+                   "income ≤ ₹12L; offsets slab-rate tax only; marginal relief above ₹12L",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Where special-rate income pushes TOTAL income past ₹12L while slab "
+                        "income stays below it, eligibility uses total income (mainstream/"
+                        "utility reading) and marginal relief offsets slab tax only — gray "
+                        "zone flagged rather than silently resolved."),
+    Rule(key="rebate.87a_old", value={"threshold": 500000, "max": 12500},
+         authority="s.87A — old regime: rebate up to ₹12,500 where total income ≤ ₹5L",
+         source_primary=_CLEARTAX_SLABS, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="rate.stcg_111a", value=Decimal("0.20"),
+         authority="s.111A — 20% for transfers on/after 23-Jul-2024 (Finance (No.2) Act 2024)",
+         source_primary=_BAJAJAMC_CG, source_secondary=_CLEARTAX_STCG,
+         effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="rate.ltcg_112a", value=Decimal("0.125"),
+         authority="s.112A — 12.5% for transfers on/after 23-Jul-2024",
+         source_primary=_BAJAJAMC_CG, source_secondary=_CLEARTAX_112,
+         effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="exemption.ltcg_112a", value=125000,
+         authority="s.112A — first ₹1.25L of 112A LTCG exempt (aggregate, per AY)",
+         source_primary=_BAJAJAMC_CG, source_secondary=_CLEARTAX_112,
+         effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="rate.ltcg_112", value=Decimal("0.125"),
+         authority="s.112 — 12.5% without indexation for transfers on/after 23-Jul-2024",
+         source_primary=_CLEARTAX_112, source_secondary=_QUICKO_112,
+         effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="s112.land_indexation_option_before", value=date(2024, 7, 23),
+         authority="s.112 proviso — resident's land/building acquired before 23-Jul-2024 may "
+                   "opt 20% with indexation instead of 12.5% without",
+         source_primary=_CLEARTAX_112, source_secondary=_QUICKO_112,
+         effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="basic_exemption.adjust_against_special_cg", value=True,
+         authority="provisos to s.111A(1)/s.112(1)/s.112A(2) — RESIDENT individuals set "
+                   "unexhausted basic exemption against 111A/112/112A gains (both regimes)",
+         source_primary=_QUICKO_112, source_secondary=_UPSTOX_BEL,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="engine.basic_exemption_adjust_order", value=("stcg_111a", "ltcg_112", "ltcg_112a"),
+         authority="engine policy — absorption order across special buckets is statute-silent",
+         source_primary=_QUICKO_112, source_secondary=_UPSTOX_BEL,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Highest-rate-first (20% 111A before 12.5% 112/112A) is the "
+                        "taxpayer-favorable order; the ITD utility's order has not been "
+                        "independently verified."),
+    Rule(key="s115bbh.no_basic_exemption", value=True,
+         authority="s.115BBH — flat 30% on VDA income; no basic-exemption adjustment, "
+                   "no slab benefit",
+         source_primary=_IK_115BBH, source_secondary=_QUICKO_VDA,
+         effective_from=date(2022, 4, 1), effective_to=None, confidence="settled"),
+    # Surcharge bands: (lower_exclusive, upper_inclusive_or_None, rate_str) on total income.
+    Rule(key="surcharge.bands",
+         value=((5000000, 10000000, "0.10"), (10000000, 20000000, "0.15"),
+                (20000000, 50000000, "0.25"), (50000000, None, "0.37")),
+         authority="Finance Act — surcharge on individuals: 10%>50L, 15%>1cr, 25%>2cr, 37%>5cr",
+         source_primary=_CLEARTAX_SURCHARGE, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="surcharge.new_regime_cap", value=Decimal("0.25"),
+         authority="s.115BAC — surcharge capped at 25% under the new regime",
+         source_primary=_CLEARTAX_SURCHARGE, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="surcharge.cg_dividend_cap", value=Decimal("0.15"),
+         authority="surcharge on tax on s.111A/112/112A gains (and dividend) capped at 15%",
+         source_primary=_CLEARTAX_SURCHARGE, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="surcharge.marginal_relief", value=True,
+         authority="proviso to surcharge — tax+surcharge capped at tax-at-threshold plus "
+                   "income in excess of the threshold",
+         source_primary=_CLEARTAX_SURCHARGE, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="With mixed slab/special income the threshold-income recomputation "
+                        "shaves slab income first (engine policy); refuses if slab income "
+                        "cannot absorb the shave."),
+    Rule(key="cess.health_education", value=Decimal("0.04"),
+         authority="4% health & education cess on income-tax plus surcharge",
+         source_primary=_CLEARTAX_CESS, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="rounding.income_288a", value=10,
+         authority="s.288A — total income rounded to nearest ₹10 (paise ignored; last digit "
+                   "≥5 up, <5 down)",
+         source_primary=_CC_288, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="rounding.tax_288b", value=10,
+         authority="s.288B — tax payable/refund rounded to nearest ₹10",
+         source_primary=_CC_288, source_secondary=_CLEARTAX_SLABS,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
 ])
