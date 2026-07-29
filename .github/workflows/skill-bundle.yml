@@ -1,0 +1,37 @@
+name: skill-bundle
+
+# Keeps the root itr-india.skill (one-click-install bundle, linked from the
+# README) in sync with the skill sources. The build is deterministic, so a
+# plain `git diff` detects staleness; if the bundle drifted, the bot commits
+# the rebuilt zip back to main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - skills/itr-india/SKILL.md
+      - skills/itr-india/references/**
+      - skills/itr-india/evals/**
+      - scripts/build-skill-bundle.sh
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild bundle
+        run: ./scripts/build-skill-bundle.sh
+      - name: Commit updated bundle if it drifted
+        run: |
+          if git diff --quiet -- itr-india.skill; then
+            echo "bundle already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add itr-india.skill
+          git commit -m "chore(skill): rebuild itr-india.skill bundle [skip ci]"
+          git push
