@@ -30,6 +30,11 @@ def test_contested_rule_needs_note():
         validate_rule(_complete_rule(confidence="contested", contested_note=""))
 
 
+def test_swapped_effective_window_fails():
+    with pytest.raises(RuleValidationError):
+        validate_rule(_complete_rule(effective_from=date(2025, 4, 1), effective_to=date(2024, 3, 31)))
+
+
 def test_active_on_respects_effective_window():
     r = _complete_rule(effective_from=date(2025, 4, 1), effective_to=date(2026, 3, 31))
     assert r.active_on(date(2025, 6, 1)) is True

@@ -36,6 +36,10 @@ def validate_rule(r: Rule) -> None:
         raise RuleValidationError(f"Rule {r.key!r} invalid confidence {r.confidence!r}")
     if r.confidence == "contested" and not r.contested_note:
         raise RuleValidationError(f"Contested rule {r.key!r} must carry a contested_note")
+    if r.effective_to is not None and r.effective_to < r.effective_from:
+        raise RuleValidationError(
+            f"Rule {r.key!r} has effective_to ({r.effective_to}) before "
+            f"effective_from ({r.effective_from})")
 
 
 class RuleTable:
