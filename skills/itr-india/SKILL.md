@@ -275,8 +275,8 @@ challan and source documents.
 - `references/income-reconciliation.md` — tying each income head to 26AS / AIS /
   bank statements / payout files, and handling mismatches.
 - `references/creator-44ada.md` — presumptive taxation for creators/freelancers
-  /small business (44ADA vs 44AD), CBDT code 16021, gross-receipts build, BP
-  schedule, the no-account balance sheet.
+  /small business (44ADA vs 44AD), CBDT business codes, gross-receipts build,
+  BP schedule, the no-account balance sheet.
 - `references/capital-gains-other-sources.md` — STCG/LTCG on listed equity & MF
   & property, 111A/112A rates, quarterly breakup for 234C, interest/dividend.
 - `references/virtual-digital-assets.md` — crypto/NFT (VDA) taxation: flat 30%
