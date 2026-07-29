@@ -5,9 +5,18 @@ from engine.rulebase import Rule, RuleTable
 _CLEARTAX_STCG = "https://cleartax.in/s/short-term-capital-gain-on-shares"
 _QUICKO_HP = "https://learn.quicko.com/capital-gains-holding-period-tax"
 _CLEARTAX_50AA = "https://cleartax.in/s/section-50aa-income-tax-act"
-_IK_2_42A = "https://indiankanoon.org/search/?formInput=section%202(42A)%20income%20tax"
-_IK_50AA = "https://indiankanoon.org/search/?formInput=section%2050AA%20income%20tax"
-_IK_115BBH = "https://indiankanoon.org/search/?formInput=section%20115BBH%20income%20tax"
+# Deep links verified by WebFetch (2026-07-29): each page was fetched and its
+# operative statutory text confirmed to state the value(s) this rule encodes.
+# "Section 2 in The Income Tax Act, 1961" — contains clause (42A) defining
+# "short-term capital asset" with the 12/24/36-month thresholds.
+_IK_2_42A = "https://indiankanoon.org/doc/545792/"
+# "Section 24 in The Finance Act, 2023" — the enacting provision that inserts
+# s.50AA into the Income-tax Act; contains "Specified Mutual Fund" and the
+# "1st day of April, 2023" effective-date language.
+_IK_50AA = "https://indiankanoon.org/doc/71017618/"
+# "Section 115BBH in The Income Tax Act, 1961" — contains "virtual digital
+# asset" and "thirty per cent".
+_IK_115BBH = "https://indiankanoon.org/doc/4837707/"
 _QUICKO_VDA = "https://learn.quicko.com/income-tax-on-cryptocurrency-nft-vda"
 
 TABLE = RuleTable([

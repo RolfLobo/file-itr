@@ -10,6 +10,9 @@ def test_every_rule_has_full_provenance():
         assert r.source_primary.startswith("http")
         assert r.source_secondary.startswith("http")
         assert r.effective_from is not None
+        # Search-result URLs are not acceptable primaries — they can drift and
+        # don't point at a stable statutory text. Primary must be a deep link.
+        assert "/search" not in r.source_primary
 
 
 def test_key_thresholds_present_and_correct():
