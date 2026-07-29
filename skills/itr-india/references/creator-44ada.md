@@ -11,7 +11,13 @@ small/medium creator.
   the CBDT notified-profession codes that include creators. Presumptive income =
   **50%** of gross receipts. Limit: gross receipts up to **₹50L** (₹75L if ≤5%
   of receipts are in cash). The relevant business code for online creators is
-  **16021 – "Social media influencers"** (a *profession* code).
+  **16021 – "Social media influencers"** (a *profession* code). 44ADA is not
+  limited to creators — other notified professions each have their own code,
+  e.g. **16005** (engineering and technical consultancy), **16002** (accounting,
+  book-keeping and auditing), **16003** (tax consultancy), **14002** (other
+  software consultancy), **16013** (business and management consultancy). Match
+  the code to the actual nature of the work rather than the nearest-sounding
+  option; the Description field takes free text if no notified code fits.
 - **Section 44AD (business):** for eligible businesses (traders, small biz).
   Presumptive income = **8%** of receipts, or **6%** for receipts via banking/
   digital channels. Limit: turnover up to ₹2cr (₹3cr if ≤5% cash).
@@ -46,6 +52,11 @@ Presumptive income @ 50% (62ii)   25,000
 - **Part A – P&L, item 62** (44ADA): enter business code 16021, gross receipts
   (62i, split by mode a/b/c), and presumptive income 62ii (50%, or higher if the
   user genuinely earned more — 50% is the floor, not a cap).
+- **On ITR-4 (Sugam):** the presumptive block lives under Gross Total Income →
+  B1 Income from Business & Profession → Presumptive Income from Profession
+  u/s 44ADA. The Name of Business/Profession, Business Code, and Description
+  fields aren't visible by default there — see the hidden-field quirk in
+  `portal-workflow.md`.
 - **Schedule BP**: the presumptive income flows to BP item 35ii (44ADA) → A37 →
   D ("Income chargeable under PGBP"). It should equal the 50% figure.
 - **Part A – Balance Sheet, item 6 (no-account case):** because income is

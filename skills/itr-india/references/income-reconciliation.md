@@ -28,7 +28,16 @@ double-count (e.g., the same payout seen by two reporters).
 
 **Salary:** Sum gross 17(1) across all Form 16s = total gross salary. Confirm
 each against the 26AS salary (192) entries. Subtract the single ₹75,000 standard
-deduction (new regime). The result is income chargeable under "Salaries".
+deduction (new regime). The result is income chargeable under "Salaries". If the
+employee had more than one employer in the year, the later employer's own TDS
+computation often aggregates the earlier employer's income for its own
+withholding — but may use the earlier employer's **gross** figure rather than
+its **net-of-exemption** figure (e.g. a 10(10AA) leave-encashment exemption the
+earlier employer already applied), silently overstating the combined income
+used for withholding. This isn't an error the portal or either Form 16 will
+flag — it just shows up as extra TDS. Don't take either employer's combined-
+income figure at face value; rebuild the combined salary yourself from both
+Form 16s and each one's exemptions, and trust only your own total.
 
 **Business/profession receipts:** Add every professional/contract receipt: 26AS
 194C/194J entries **plus** platform payouts that weren't subject to TDS. Watch

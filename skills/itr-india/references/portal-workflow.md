@@ -86,6 +86,17 @@ When "Proceed to Verification" runs the **Upload Level Validation**, it lists
   enter a positive **cash balance** (debtors/creditors/stock can be 0) → Confirm.
   A clean, defensible cash-balance figure is the net presumptive profit. This is
   disclosure only and does not change the tax.
+- **"Kindly enter the respective business code for the income declared u/s
+  44ADA/44AD."** The Name of Business/Profession, Business Code, and Description
+  fields aren't shown by default on the presumptive-income screen — they sit in
+  a sub-form that only appears after clicking **"Add Another"** under the
+  44AD/44ADA/44AE computation block, which reads like "register a second
+  business" rather than "the required field is hidden here." **Fix:** click
+  **Add Another** even when there is only one business/profession, fill Name,
+  Business Code (see `creator-44ada.md` for the code list), and Description,
+  then Save — the presumptive amount is unaffected. Confirmed on ITR-4 (Sugam);
+  check whether the ITR-3 Schedule BP screen has the same pattern before relying
+  on this there.
 - **Secondary address / employer-nature dropdowns blank.** Set "Nature of
   employer = Others" for non-government salary; fill the secondary address if the
   user has one different from the primary.
@@ -105,6 +116,11 @@ and reconcile every key figure against your independent computation:
 - gross tax, cess, special-rate tax;
 - 234B + 234C interest;
 - TDS + self-assessment challan = total taxes paid;
+- each TDS entry's **Head of Income** tag matches the income head it's actually
+  credited against (e.g. 194J TDS feeding presumptive business income should be
+  tagged "Business/Profession," not left on the portal's "Other Sources"
+  default) — this doesn't necessarily block Upload Level Validation, but a
+  mismatched tag misaligns the credit from the income it belongs to;
 - amount payable should be **₹0** after payment (a few-rupee gap is just the
   nearest-₹10 rounding under Section 288B);
 - regime flag, residential status, bank accounts, foreign-asset flag,
