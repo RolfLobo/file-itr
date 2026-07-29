@@ -39,6 +39,28 @@ _IK_50AA = "https://indiankanoon.org/doc/71017618/"
 # asset" and "thirty per cent".
 _IK_115BBH = "https://indiankanoon.org/doc/4837707/"
 _QUICKO_VDA = "https://learn.quicko.com/income-tax-on-cryptocurrency-nft-vda"
+# Set-off & carry-forward deep links, verified by WebFetch (2026-07-29):
+# "Section 70 in The Income Tax Act, 1961" — sub-s (2): STCL "set off against
+# the income … in respect of any other capital asset"; sub-s (3): LTCL against
+# "any other capital asset not being a short-term capital asset".
+_IK_70 = "https://indiankanoon.org/doc/1628473/"
+# "Section 71 in The Income Tax Act, 1961" — sub-s (3): CG loss "shall not be
+# entitled to have such loss set off against income under the other head".
+_IK_71 = "https://indiankanoon.org/doc/178812545/"
+# "Section 74 in The Income Tax Act, 1961" — (1)(a) c/f STCL against "any other
+# capital asset"; (1)(b) c/f LTCL against "any other capital asset not being a
+# short-term capital asset"; (2) "not … more than eight assessment years
+# immediately succeeding the assessment year for which the loss was first
+# computed".
+_IK_74 = "https://indiankanoon.org/doc/1129438/"
+# "Section 80 in The Income Tax Act, 1961" — "no loss which has not been
+# determined in pursuance of a return filed [u/s 139(3)] shall be carried
+# forward and set off under … sub-section (1) or sub-section (3) of section 74".
+_IK_80 = "https://indiankanoon.org/doc/1502697/"
+# s.115BBH(2)(b) on the same _IK_115BBH page: "no set off of loss from transfer
+# of the virtual digital asset … against income computed under any provision of
+# this Act … and such loss shall not be allowed to be carried forward".
+_CLEARTAX_SETOFF = "https://cleartax.in/s/set-off-carry-forward-capital-losses"
 
 TABLE = RuleTable([
     Rule(key="holding.listed_equity.lt_months", value=12,
@@ -67,4 +89,50 @@ TABLE = RuleTable([
          authority="s.115BBH — VDA gains taxed at flat 30%, any holding period",
          source_primary=_IK_115BBH, source_secondary=_QUICKO_VDA,
          effective_from=date(2022, 4, 1), effective_to=None, confidence="settled"),
+    # --- Phase 2: set-off & carry-forward ---
+    Rule(key="s70.stcl_setoff_any_cg", value=True,
+         authority="s.70(2) — current-year STCL sets off against ST and LT capital gains",
+         source_primary=_IK_70, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s70.ltcl_setoff_ltcg_only", value=True,
+         authority="s.70(3) — current-year LTCL sets off against LTCG only",
+         source_primary=_IK_70, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s71.capital_loss_no_interhead", value=True,
+         authority="s.71(3) — capital loss never sets off against any other head",
+         source_primary=_IK_71, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s74.cf_stcl_setoff_any_cg", value=True,
+         authority="s.74(1)(a) — b/f STCL sets off against ST and LT capital gains",
+         source_primary=_IK_74, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2000, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s74.cf_ltcl_setoff_ltcg_only", value=True,
+         authority="s.74(1)(b) — b/f LTCL sets off against LTCG only",
+         source_primary=_IK_74, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2000, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s74.cf_years", value=8,
+         authority="s.74(2) — capital losses carried forward max 8 AYs after the loss AY",
+         source_primary=_IK_74, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2000, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s80.timely_return_required", value=True,
+         authority="s.80 r/w s.139(3) — loss not determined in a timely loss-year return "
+                   "cannot be carried forward under s.74",
+         source_primary=_IK_80, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s115bbh.loss_setoff_disallowed", value=True,
+         authority="s.115BBH(2)(b) — VDA loss: no set-off against any income, no carry-forward",
+         source_primary=_IK_115BBH, source_secondary=_QUICKO_VDA,
+         effective_from=date(2022, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Applied per item: loss on one VDA is not netted against gain on "
+                        "another (enacted 'any provision of this Act' wording + the "
+                        "government's Mar-2022 clarification dropping 'other'; early "
+                        "practitioner debate existed on intra-VDA netting)."),
+    Rule(key="engine.cg_setoff_order", value=("stcg_slab", "stcg_111a", "ltcg_112", "ltcg_112a"),
+         authority="engine policy — statute prescribes no absorption order across buckets",
+         source_primary=_IK_70, source_secondary=_CLEARTAX_SETOFF,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Ordering changes per-bucket totals that Phase 3 taxes at different "
+                        "rates. Policy: within each term, slab buckets before concession "
+                        "buckets; LTCL (restricted, s.70(3)) gets first claim on LTCG before "
+                        "STCL spillover. Revisit against the ITD utility in Phase 3+."),
 ])

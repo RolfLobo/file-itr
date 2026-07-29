@@ -81,3 +81,26 @@ class VdaItem:
     @property
     def gain(self) -> Decimal:
         return self.proceeds - self.cost
+
+
+class CFLossKind(Enum):
+    STCL = "stcl"
+    LTCL = "ltcl"
+
+
+@dataclass(frozen=True)
+class BroughtForwardLoss:
+    """A capital loss brought forward from an earlier AY (s.74).
+
+    ay_incurred is the AY for which the loss was first computed; s.74(2) makes
+    it usable through ay_incurred + 8. return_filed_by_due_date asserts the
+    s.80/139(3) gate was met in the loss year — the engine cannot verify it.
+    """
+    kind: CFLossKind
+    ay_incurred: int
+    amount: Decimal
+    return_filed_by_due_date: bool = True
+
+    def __post_init__(self):
+        if self.amount <= 0:
+            raise ValueError("brought-forward loss amount must be positive")
