@@ -77,10 +77,23 @@ class CapitalGainItem:
 class VdaItem:
     proceeds: Decimal
     cost: Decimal
+    # Needed only for the s.234C capital-gains carve-out (quarterly accrual);
+    # bucketing/set-off/rates never read it.
+    sale_date: Optional[date] = None
 
     @property
     def gain(self) -> Decimal:
         return self.proceeds - self.cost
+
+
+@dataclass(frozen=True)
+class AdvanceTaxPayment:
+    paid_on: date
+    amount: Decimal
+
+    def __post_init__(self):
+        if self.amount <= 0:
+            raise ValueError("advance-tax payment amount must be positive")
 
 
 class CFLossKind(Enum):

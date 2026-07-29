@@ -89,6 +89,17 @@ _CLEARTAX_CESS = "https://cleartax.in/s/cess-on-income-tax"
 # charteredclub 288A/288B page — both round to nearest ₹10, paise ignored,
 # last digit >= 5 up, < 5 down.
 _CC_288 = "https://www.charteredclub.com/rounding-off-in-income-tax-section-288a-288b/"
+# Phase 4 interest sources, verified by WebFetch (2026-07-29):
+# cleartax 234B page — 1% pm part-month-as-full, 90% assessed-tax trigger,
+# runs from 1 Apr of the AY until paid, base "rounded off in such a way that
+# any fraction of a hundred is ignored" (Rule 119A), and the ₹10,000
+# advance-tax obligation floor. cleartax 234C page — 15/45/75/100 schedule,
+# 1% pm for 3 months (1 for March), the could-not-estimate carve-out for
+# capital gains, and the resident-senior-without-PGBP exemption. The 12%/36%
+# safe harbors corroborated by myitreturn/indiafilings (search-verified).
+_CLEARTAX_234B = "https://cleartax.in/s/interest-imposed-by-income-tax-department-under-section-234b"
+_CLEARTAX_234C = "https://cleartax.in/s/interest-imposed-by-income-tax-department-under-section-234c"
+_MYITR_234C = "https://help.myitreturn.com/hc/en-us/articles/219731327-Interest-payable-for-deferment-of-Advance-tax-installments-Section-234C"
 
 TABLE = RuleTable([
     Rule(key="holding.listed_equity.lt_months", value=12,
@@ -273,4 +284,48 @@ TABLE = RuleTable([
          authority="s.288B — tax payable/refund rounded to nearest ₹10",
          source_primary=_CC_288, source_secondary=_CLEARTAX_SLABS,
          effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    # --- Phase 4: advance-tax interest ---
+    Rule(key="interest.rate_pm", value=Decimal("0.01"),
+         authority="s.234A/234B/234C — simple interest 1% per month or part thereof",
+         source_primary=_CLEARTAX_234B, source_secondary=_CLEARTAX_234C,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="rule119a.interest_base_round_down", value=100,
+         authority="Rule 119A — interest base rounded to ₹100 with any fraction "
+                   "of one hundred rupees ignored (i.e. rounded down)",
+         source_primary=_CLEARTAX_234B, source_secondary=_CC_288,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s208.advance_tax_threshold", value=10000,
+         authority="s.208 — advance tax payable only if net liability exceeds ₹10,000",
+         source_primary=_CLEARTAX_234B, source_secondary=_CLEARTAX_234C,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s207.senior_no_advance_tax", value=True,
+         authority="s.207(2) — resident individual 60+ with no business/profession "
+                   "income owes no advance tax (so no 234B/234C)",
+         source_primary=_CLEARTAX_234C, source_secondary=_CLEARTAX_234B,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s234b.advance_shortfall_trigger", value=Decimal("0.90"),
+         authority="s.234B — applies when advance tax paid is below 90% of assessed tax",
+         source_primary=_CLEARTAX_234B, source_secondary=_CLEARTAX_234C,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    # (month, day, cumulative %, safe-harbor % or "", months of interest);
+    # month 3 falls in the FY's closing calendar year, the rest in its opening.
+    Rule(key="s234c.schedule",
+         value=((6, 15, "0.15", "0.12", 3), (9, 15, "0.45", "0.36", 3),
+                (12, 15, "0.75", "", 3), (3, 15, "1.00", "", 1)),
+         authority="s.234C(1) — instalments 15%/45%/75%/100% due 15 Jun/Sep/Dec/Mar; "
+                   "1% pm for 3 months (1 month for March); 12%/36% safe harbors for "
+                   "the first two instalments",
+         source_primary=_CLEARTAX_234C, source_secondary=_MYITR_234C,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="s234c.cg_carveout", value=True,
+         authority="proviso to s.234C(1) — no 234C interest on shortfall attributable to "
+                   "capital gains (incl. VDA) accruing after an instalment date, provided "
+                   "the tax is paid in the remaining instalments / by 31 Mar",
+         source_primary=_CLEARTAX_234C, source_secondary=_MYITR_234C,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Engine attributes tax to a late-accruing item proportionally to "
+                        "its share of the bucket's gains (post-112A-exemption, plus cess); "
+                        "refuses when surcharge applies, when a special item is a loss, or "
+                        "when slab-rate CG is sold after the first instalment — those "
+                        "attributions are not statute-determined."),
 ])
