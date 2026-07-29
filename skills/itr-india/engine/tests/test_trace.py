@@ -1,6 +1,8 @@
 from datetime import date
 from decimal import Decimal
-from engine.model import AssetClass, CapitalGainItem
+import pytest
+from engine.model import AssetClass, CapitalGainItem, VdaItem
+from engine.rulebase import RuleTable
 from engine.rules.ay2026_27 import TABLE
 from engine.trace import trace_bucketing
 
@@ -23,3 +25,15 @@ def test_trace_flags_contested_lines():
                            Decimal("20000"), Decimal("0"))
     tr = trace_bucketing([item], TABLE, REF)
     assert len(tr.contested()) == 1
+
+
+def test_trace_raises_when_rule_key_unresolvable():
+    # VDA-path citation invariant: classify() returns "s115bbh.applies" for VdaItem
+    # without consulting the table itself. If that key is missing from the table,
+    # trace_bucketing's own table.get(rule_key, ...) lookup must raise rather than
+    # silently produce a trace line with no citation.
+    table_missing_vda_rule = RuleTable(
+        [r for r in TABLE.all() if r.key != "s115bbh.applies"])
+    item = VdaItem(Decimal("100000"), Decimal("60000"))
+    with pytest.raises(KeyError):
+        trace_bucketing([item], table_missing_vda_rule, REF)

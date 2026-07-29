@@ -1,7 +1,8 @@
 from datetime import date
 from decimal import Decimal
 import pytest
-from engine.model import (Regime, AgeBand, AssetClass, Taxpayer, CapitalGainItem, VdaItem)
+from engine.model import (Regime, AgeBand, AssetClass, Taxpayer, CapitalGainItem, VdaItem,
+                          _add_months)
 
 
 def test_capitalgain_gain_and_holding():
@@ -29,3 +30,10 @@ def test_sale_before_acquisition_rejected():
 def test_taxpayer_constructs():
     tp = Taxpayer(ay=2027, resident=True, age_band=AgeBand.BELOW_60, regime=Regime.NEW)
     assert tp.ay == 2027
+
+
+def test_add_months_clamps_to_month_end():
+    # Jan 31 + 1 month -> 2024 is a leap year, Feb has 29 days
+    assert _add_months(date(2024, 1, 31), 1) == date(2024, 2, 29)
+    # Jan 31 + 1 month -> 2023 is not a leap year, Feb has 28 days
+    assert _add_months(date(2023, 1, 31), 1) == date(2023, 2, 28)

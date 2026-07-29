@@ -10,7 +10,7 @@ from engine.rules.ay2026_27 import TABLE
 
 @dataclass(frozen=True)
 class BucketResult:
-    totals: dict
+    totals: dict[Bucket, Decimal]
     trace: Trace
 
 
