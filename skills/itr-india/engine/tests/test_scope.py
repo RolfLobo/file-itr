@@ -32,3 +32,17 @@ def test_in_scope_passes():
     item = CapitalGainItem(AssetClass.LISTED_EQUITY_STT, date(2024, 1, 1), date(2024, 6, 1),
                            Decimal("100"), Decimal("0"), stt_paid=True)
     check_scope(_tp(), [item])   # no raise
+
+
+def test_stt_asset_without_stt_paid_refused():
+    item = CapitalGainItem(AssetClass.LISTED_EQUITY_STT, date(2024, 1, 1), date(2024, 6, 1),
+                           Decimal("100"), Decimal("0"), stt_paid=False)
+    with pytest.raises(OutOfScopeError, match="STT"):
+        check_scope(_tp(), [item])
+
+
+def test_debt_50aa_pre_2023_04_01_refused():
+    item = CapitalGainItem(AssetClass.DEBT_MF_50AA, date(2022, 5, 1), date(2024, 1, 1),
+                           Decimal("100"), Decimal("0"))
+    with pytest.raises(OutOfScopeError, match="50AA"):
+        check_scope(_tp(), [item])

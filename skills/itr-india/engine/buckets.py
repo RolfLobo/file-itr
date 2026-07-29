@@ -40,7 +40,9 @@ def classify(item, table: RuleTable, ay_ref_date: date) -> tuple[Bucket, str]:
             lt = item.held_more_than_months(r.value)
             return (Bucket.LTCG_112, r.key) if lt else (Bucket.STCG_SLAB, r.key)
 
-    raise ValueError(f"Unclassifiable item {item!r} — out of Phase 1 scope (scope.check_scope should pre-empt this)")
+    raise ValueError(
+        f"internal invariant violated: unclassifiable item {item!r} reached classify; "
+        "check_scope should have refused it")
 
 
 def bucket_income(items: list, table: RuleTable, ay_ref_date: date) -> dict[Bucket, Decimal]:
