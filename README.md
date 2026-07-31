@@ -165,25 +165,6 @@ Bug reports, corrected reference material, and engine improvements are
 welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, running the
 test suite, and commit/PR conventions.
 
-## Related projects
-
-Other independent projects tackle Indian ITR filing with an agent skill —
-worth comparing before you pick one, since scope, supported forms, and test
-coverage differ:
-
-- [`itr-prep-skill`](https://github.com/NidheeshJain/itr-prep-skill) — parses
-  Form 16/AIS/26AS/broker statements and emits a portal-ready data-pack for a
-  separate browser-filing agent.
-- [`itr-wala`](https://github.com/karanb192/itr-wala) — a deterministic tax
-  engine for both regimes (AY 2026-27) usable from Claude Code, Codex, or
-  Gemini.
-- [`itr-agent`](https://github.com/Sagargupta16/itr-agent) — a local-first MCP
-  server for tax computation, regime comparison, and advance-tax planning.
-- [`prepare-india-tax-return`](https://github.com/bagdeabhishek/prepare-india-tax-return) —
-  screen-by-screen ITR-2 filing focused on foreign income, Schedule FA, and
-  Form 67 (the gap this project explicitly doesn't cover — see
-  [Scope and limitations](#scope-and-limitations)).
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
