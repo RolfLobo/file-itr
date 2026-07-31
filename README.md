@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skill Bundle](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml/badge.svg)](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml)
+[![GitHub stars](https://img.shields.io/github/stars/shivprime94/file-itr?style=social)](https://github.com/shivprime94/file-itr/stargazers)
 
 An agent **skill** that helps **any** Indian individual taxpayer prepare and
 e-file an Income Tax Return (ITR-1/2/3/4) on the official portal — under **either
@@ -141,10 +142,6 @@ X/etc.). For the portal steps, you log in yourself and the agent drives the form
 Bug reports, corrected reference material, and engine improvements are
 welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, running the
 test suite, and commit/PR conventions.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=shivprime94/file-itr&type=Date)](https://star-history.com/#shivprime94/file-itr&Date)
 
 ## License
 
