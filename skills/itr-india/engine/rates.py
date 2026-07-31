@@ -120,23 +120,39 @@ def compute_tax(buckets: dict, taxpayer: Taxpayer, table: RuleTable,
     # --- s.87A rebate ---
     rebate = Decimal("0")
     if taxpayer.regime is Regime.NEW:
-        r87 = table.get("rebate.87a_new", ay_ref_date).value
-        if ti <= r87["threshold"]:
-            rebate = min(slab_tax, Decimal(r87["max"]))
-        else:
-            # marginal relief: slab-rate tax payable capped at the excess over
-            # the threshold; special-rate tax is never rebated (s.115BAC/87A).
-            excess = ti - r87["threshold"]
-            if slab_tax > excess:
-                rebate = slab_tax - excess
+        r87_new = table.get("rebate.87a_new", ay_ref_date).value
+
+        def _new_regime_rebate(base: Decimal) -> Decimal:
+            if base <= r87_new["threshold"]:
+                return min(slab_tax, Decimal(r87_new["max"]))
+            excess = base - r87_new["threshold"]
+            return slab_tax - excess if slab_tax > excess else Decimal("0")
+
+        # Finance Act 2025: 111A/112/112A income is out of s.87A's scope
+        # entirely, so both the ₹12L threshold and marginal relief are tested
+        # against slab_base (income excluding those special-rate buckets), not
+        # ti (total income including them) — see rebate.87a_new's contested_note.
+        rebate = _new_regime_rebate(slab_base)
+        # The sources behind that exclusion address 111A/112/112A only, never
+        # VDA (s.115BBH — a separate Chapter-XII regime). Whether VDA should
+        # count toward the ₹12L test is this engine's own inference either
+        # way, so only refuse where it actually matters: compare against the
+        # answer if VDA *did* count, and fail loud only on disagreement —
+        # matching results mean the VDA question doesn't change the outcome.
+        vda_amt = raw[Bucket.VDA_115BBH]
+        if vda_amt > 0 and _new_regime_rebate(slab_base + vda_amt) != rebate:
+            raise OutOfScopeError(
+                "new-regime 87A rebate depends on whether VDA income counts toward "
+                "the ₹12L threshold/marginal-relief test, which is not source-"
+                "confirmed here (sources cover 111A/112/112A only) — compute manually")
     else:
-        r87 = table.get("rebate.87a_old", ay_ref_date).value
-        if ti <= r87["threshold"]:
+        r87_old = table.get("rebate.87a_old", ay_ref_date).value
+        if ti <= r87_old["threshold"]:
             if any(v > 0 for v in special_tax.values()):
                 raise OutOfScopeError(
                     "old-regime 87A with special-rate tax present is contested "
                     "(s.112A(6); utility behavior on 111A/VDA) — compute manually")
-            rebate = min(slab_tax, Decimal(r87["max"]))
+            rebate = min(slab_tax, Decimal(r87_old["max"]))
 
     tax_after_rebate = slab_tax + sum(special_tax.values()) - rebate
 

@@ -230,7 +230,10 @@ def tax_old(x, senior=False):              # senior (60-79): first slab to 3L; 8
 # Compute taxable income SEPARATELY per regime: old allows std ded 50k + Ch-VIA
 # deductions; new allows std ded 75k and almost no deductions.
 # Add special-rate items (e.g. STCG u/s 111A @ its rate) on TOP of slab tax,
-# then add 4% health & education cess. Apply 87A rebate where eligible.
+# then add 4% health & education cess. Apply 87A rebate where eligible — new
+# regime (Finance Act 2025): compare SLAB-ONLY income (excl. special-rate
+# income) to 12L, not total income; special-rate income never gets rebated
+# or counted toward the 12L test. See tax-regimes-and-slabs.md.
 ```
 
 Then reconcile against the portal's Part B-TTI line by line: gross tax, cess,

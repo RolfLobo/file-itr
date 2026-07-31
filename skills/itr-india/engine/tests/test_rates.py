@@ -130,6 +130,63 @@ def test_new_regime_rebate_never_touches_special_tax():
     assert r.total_tax == Decimal("41600")  # 40000 + 4% cess
 
 
+def test_new_regime_87a_eligibility_excludes_special_rate_income():
+    # Finance Act 2025: slab income 11L (<=12L) stays fully rebate-eligible
+    # even though total income (11L slab + 3.25L 112A LTCG) is 14.25L.
+    r = compute_tax(bk(normal=1100000, s112a=325000), tp(), TABLE, REF)
+    assert r.slab_tax == Decimal("50000")
+    assert r.rebate_87a == Decimal("50000")               # fully rebated
+    assert r.special_tax[Bucket.LTCG_112A] == Decimal("25000")  # (3.25L-1.25L exempt)*12.5%
+    assert r.total_tax == Decimal("26000")                 # special tax only, +4% cess
+
+
+def test_new_regime_87a_marginal_relief_uses_slab_income_not_total():
+    # slab income 12.1L (just above 12L) plus 50k of 111A gain: marginal
+    # relief must key off the slab-income excess (10,000), not the excess of
+    # total income (12.6L) over the threshold — same slab-only outcome as
+    # test_new_regime_87a_marginal_relief_just_above_12l regardless of the
+    # extra special-rate income riding alongside it.
+    r = compute_tax(bk(normal=1210000, s111a=50000), tp(), TABLE, REF)
+    assert r.slab_tax - r.rebate_87a == Decimal("10000")
+    assert r.special_tax[Bucket.STCG_111A] == Decimal("10000")
+    assert r.total_tax == Decimal("20800")  # (10000 slab + 10000 special) * 1.04
+
+
+def test_new_regime_87a_with_basic_exemption_absorption_still_zero_rebate():
+    # slab income 3L (< 4L exemption) + 2L of 111A: unexhausted exemption
+    # (1L) absorbs into the 111A taxable amount, but slab_tax on 3L is 0
+    # either way, so the rebate is 0 regardless of eligibility interpretation
+    # — locks in that the exemption-absorption step and the 87A slab_base
+    # check don't fight each other.
+    r = compute_tax(bk(normal=300000, s111a=200000), tp(), TABLE, REF)
+    assert r.slab_tax == Decimal("0")
+    assert r.rebate_87a == Decimal("0")
+    assert r.special_taxable[Bucket.STCG_111A] == Decimal("100000")  # 2L - 1L absorbed
+    assert r.special_tax[Bucket.STCG_111A] == Decimal("20000")
+    assert r.total_tax == Decimal("20800")
+
+
+def test_new_regime_87a_refuses_when_vda_changes_the_answer():
+    # slab income 11.5L is <=12L (rebate-eligible) on its own, but 11.5L+1L
+    # VDA = 12.5L would NOT be (marginal relief only). Sources for excluding
+    # special-rate income from the 12L test cover 111A/112/112A only, never
+    # VDA (s.115BBH) — whether VDA counts is undetermined here, and this is
+    # exactly the case where the two readings disagree, so refuse.
+    with pytest.raises(OutOfScopeError, match="VDA"):
+        compute_tax(bk(normal=1150000, vda=100000), tp(), TABLE, REF)
+
+
+def test_new_regime_87a_vda_present_but_answer_unaffected_is_fine():
+    # slab income 5L: whether or not the 40k of VDA gain counts toward the
+    # 12L test, 5L and 5.4L are both comfortably under it, so the rebate
+    # answer is identical either way — no genuine ambiguity, no refusal.
+    r = compute_tax(bk(normal=500000, vda=40000), tp(), TABLE, REF)
+    assert r.slab_tax == Decimal("5000")
+    assert r.rebate_87a == Decimal("5000")
+    assert r.special_tax[Bucket.VDA_115BBH] == Decimal("12000")
+    assert r.total_tax == Decimal("12480")
+
+
 # ---------------- basic-exemption adjustment (residents) ----------------
 
 def test_unexhausted_basic_exemption_absorbs_special_cg():

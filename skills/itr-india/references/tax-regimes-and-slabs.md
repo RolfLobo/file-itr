@@ -28,8 +28,15 @@ but almost no other deductions/exemptions.
 | above ₹24,00,000 | 30% |
 
 - **Standard deduction:** ₹75,000 against salary (once per person).
-- **87A rebate:** tax nil up to total income ₹12,00,000. **No rebate above ₹12L.**
-  Special-rate income (most capital gains) is generally outside the rebate.
+- **87A rebate (as amended by Finance Act 2025):** special-rate income (111A/
+  112/112A, VDA) is excluded **both** from the ₹12,00,000 eligibility test
+  **and** from what the rebate can offset — not just the latter. So a filer
+  with ₹11L slab income and ₹3L of LTCG is still fully rebated on the ₹11L
+  (nil slab tax), even though their *total* income is ₹14L; only compare
+  slab-rate income (income minus special-rate income) against ₹12L. Marginal
+  relief above that ₹12L line is computed on the same slab-only figure. This
+  reading is contested/not primary-source-confirmed in this repo — see
+  `engine/rules/ay2026_27.py`'s `rebate.87a_new` for the citations and caveat.
 - Slabs are the same regardless of age (no separate senior-citizen slabs in new
   regime).
 

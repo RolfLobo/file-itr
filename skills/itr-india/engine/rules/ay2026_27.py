@@ -76,6 +76,16 @@ _CLEARTAX_SETOFF = "https://cleartax.in/s/set-off-carry-forward-capital-losses"
 # the WebFetch-verified citation, PIB kept as the (unfetchable) official trail.
 _CLEARTAX_SLABS = "https://cleartax.in/c/income-tax-slab-rates"
 _PIB_BUDGET_2025 = "https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2098353&reg=3&lang=2"
+# Finance Act 2025 inserted a proviso to s.87A excluding income chargeable at
+# special rates (Chapter XII — e.g. 111A/112/112A) from BOTH the ₹12L new-regime
+# threshold test and the marginal-relief computation, not just from what the
+# rebate can offset. Official ITD FAQ page kept as the primary trail but, like
+# the PIB pages above, returns HTTP 403 to direct fetch (2026-07-31); TaxTMI's
+# note is the WebFetch-verified secondary and reads closest to the department's
+# own wording ("tax on incomes chargeable at special rates ... are not included
+# while determining the rebate"). See rebate.87a_new's contested_note.
+_ITD_87A_FAQ_FY2526 = "https://www.incometaxindia.gov.in/w/what-is-rebate-under-section-87a-for-f.y-2025-26-and-who-can-claim-it-"
+_TAXTMI_87A = "https://www.taxtmi.com/tmi_notes?id=1432"
 # bajajamc Budget-2024 CG explainer — "increased from 15% to 20%" (111A),
 # "risen from 10% to 12.5%" (112A), exemption "from Rs 1 lakh to Rs 1.25 lakh".
 _BAJAJAMC_CG = "https://www.bajajamc.com/knowledge-centre/union-budget-2024-new-mutual-funds-capital-gains-tax-explained"
@@ -208,14 +218,24 @@ TABLE = RuleTable([
          source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
          effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
     Rule(key="rebate.87a_new", value={"threshold": 1200000, "max": 60000},
-         authority="s.87A (Finance Act 2025) — new regime: rebate up to ₹60,000 where total "
-                   "income ≤ ₹12L; offsets slab-rate tax only; marginal relief above ₹12L",
-         source_primary=_CLEARTAX_SLABS, source_secondary=_PIB_BUDGET_2025,
+         authority="s.87A (as amended by Finance Act 2025) — new regime: rebate up to "
+                   "₹60,000 where slab_base (normal + slab-rate-STCG income, after the "
+                   "s.288A rounding delta, before basic-exemption adjustment — i.e. "
+                   "excluding 111A/112/112A) is ≤ ₹12L; offsets slab-rate tax only; "
+                   "marginal relief above ₹12L is computed on that same slab_base",
+         source_primary=_ITD_87A_FAQ_FY2526, source_secondary=_TAXTMI_87A,
          effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
-         contested_note="Where special-rate income pushes TOTAL income past ₹12L while slab "
-                        "income stays below it, eligibility uses total income (mainstream/"
-                        "utility reading) and marginal relief offsets slab tax only — gray "
-                        "zone flagged rather than silently resolved."),
+         contested_note="Finance Act 2025 inserted a proviso taking 111A/112/112A income "
+                        "out of s.87A's scope entirely — both the ₹12L eligibility test and "
+                        "marginal relief use slab_base, not total income (ti). Multiple "
+                        "secondary sources (TaxGuru, TaxTMI, A2Z Taxcorp) converge on this "
+                        "reading for 111A/112/112A specifically; kept 'contested' rather "
+                        "than 'settled' because the primary incometaxindia.gov.in FAQ 403s "
+                        "to direct fetch and the bare gazetted proviso text itself was not "
+                        "independently read here. None of those sources address VDA "
+                        "(s.115BBH, a separate Chapter-XII regime) — rates.py refuses "
+                        "rather than extends this exclusion to VDA on its own inference "
+                        "whenever doing so would change the computed rebate."),
     Rule(key="rebate.87a_old", value={"threshold": 500000, "max": 12500},
          authority="s.87A — old regime: rebate up to ₹12,500 where total income ≤ ₹5L",
          source_primary=_CLEARTAX_SLABS, source_secondary=_CLEARTAX_SETOFF,

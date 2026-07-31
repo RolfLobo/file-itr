@@ -46,4 +46,4 @@ Structurally out of scope (inputs cannot express them): business/HP/foreign
 income, Chapter VI-A deductions, AMT, clubbing, s.89 relief. `normal_income`
 is the caller's already-reconciled slab-rate total.
 
-Run tests: `pytest skills/itr-india/engine/tests -v` (114 tests)
+Run tests: `pytest skills/itr-india/engine/tests -v` (119 tests)
