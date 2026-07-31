@@ -1,0 +1,23 @@
+name: engine-tests
+
+# Runs the engine's own test suite (116 tests, ~0.1s) on every push/PR — the
+# suite already existed (skills/itr-india/engine/tests/) but nothing was
+# running it in CI. No path filter: the suite is cheap enough to just always
+# run, and a filtered badge would sit at "no status" until an unrelated push
+# happened to touch engine/.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install pytest
+      - run: pytest skills/itr-india/engine/tests -v

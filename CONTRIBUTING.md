@@ -17,11 +17,17 @@ somewhat independently:
   engine enforces this (typed `Rule`s, `validate_rule`, contested-rule flags,
   and a fail-loud `OutOfScopeError` instead of a silent guess). Apply the same
   discipline to `references/*.md` in the skill.
-- **Never commit real tax data.** `.gitignore` already blocks common filenames
-  (`*AIS*`, `*26AS*`, `*Form16*`, `*ACK*`, `*ChallanReceipt*`, `*Preview*`,
-  `*.json.personal`) — if you're testing against real documents, check
-  `git status` before pushing in case a redacted/sample file doesn't match
-  those patterns.
+- **Never commit real tax data**, in a commit, a test fixture, an issue, or a
+  PR description. This includes PAN/Aadhaar/passport numbers, bank/broker/demat
+  account numbers, passwords/OTPs/tokens, addresses or contact details, and
+  Form 16/26AS/AIS-TIS/ITR JSON/acknowledgements — real or unredacted. If a bug
+  only reproduces with sensitive material, describe the behavior instead of
+  attaching the source document; use synthetic or fully redacted data. `.gitignore`
+  blocks common filenames for this (`*AIS*`, `*26AS*`, `*Form16*`, `*ACK*`,
+  `*ChallanReceipt*`, `*Preview*`, `*.json.personal`), but that's a safety net,
+  not a guarantee — check `git status` before pushing. See
+  [SECURITY.md](SECURITY.md) for what to do if sensitive data does get committed,
+  and how to report a security issue privately.
 
 ## Dev setup
 

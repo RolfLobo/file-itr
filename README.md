@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skill Bundle](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml/badge.svg)](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml)
+[![Engine Tests](https://github.com/shivprime94/file-itr/actions/workflows/engine-tests.yml/badge.svg)](https://github.com/shivprime94/file-itr/actions/workflows/engine-tests.yml)
 [![GitHub stars](https://img.shields.io/github/stars/shivprime94/file-itr?style=social)](https://github.com/shivprime94/file-itr/stargazers)
 
 An agent **skill** that helps **any** Indian individual taxpayer prepare and
@@ -48,6 +49,27 @@ all common filer types.
   (logout pop-ups, mat-select dropdowns, the trailing-zero bug, silent
   schedule un-confirmation, and the no-account balance-sheet validation defect).
 - Handing off payment, submission, and e-verification cleanly.
+
+## Scope and limitations
+
+- **The verified engine** (`skills/itr-india/engine/`) is scoped to AY 2026-27,
+  resident individuals, both regimes, and structurally refuses — fail-loud, not
+  a guess — non-residents, business/house-property/foreign income, Chapter
+  VI-A deductions beyond what's modeled, AMT, clubbing provisions, and Section
+  89 relief. See [`engine/README.md`](skills/itr-india/engine/README.md) for
+  the exact boundary.
+- **The skill's reference material** (`skills/itr-india/references/`) covers
+  domestic salary/freelance/business income, capital gains, deductions, and
+  VDA/crypto in depth. It recognises RNOR/non-resident status and foreign
+  assets/income as real scenarios — they're documented ITR-4 disqualifiers
+  that route to ITR-2/3 — but there's no dedicated Schedule FA/FSI/TR
+  reference yet, so that coverage is thinner than the domestic-filer material
+  and should be verified independently or with a CA.
+- **India personal income tax only** — not GST, TDS returns (24Q/26Q), or
+  company/firm returns.
+- Complex F&O/intraday trading, tax-audit applicability, and multi-year
+  brought-forward-loss continuity should be verified with a CA — the skill
+  helps reconcile and file, it doesn't replace judgment on edge cases.
 
 ## Repository structure
 
@@ -142,6 +164,25 @@ X/etc.). For the portal steps, you log in yourself and the agent drives the form
 Bug reports, corrected reference material, and engine improvements are
 welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, running the
 test suite, and commit/PR conventions.
+
+## Related projects
+
+Other independent projects tackle Indian ITR filing with an agent skill —
+worth comparing before you pick one, since scope, supported forms, and test
+coverage differ:
+
+- [`itr-prep-skill`](https://github.com/NidheeshJain/itr-prep-skill) — parses
+  Form 16/AIS/26AS/broker statements and emits a portal-ready data-pack for a
+  separate browser-filing agent.
+- [`itr-wala`](https://github.com/karanb192/itr-wala) — a deterministic tax
+  engine for both regimes (AY 2026-27) usable from Claude Code, Codex, or
+  Gemini.
+- [`itr-agent`](https://github.com/Sagargupta16/itr-agent) — a local-first MCP
+  server for tax computation, regime comparison, and advance-tax planning.
+- [`prepare-india-tax-return`](https://github.com/bagdeabhishek/prepare-india-tax-return) —
+  screen-by-screen ITR-2 filing focused on foreign income, Schedule FA, and
+  Form 67 (the gap this project explicitly doesn't cover — see
+  [Scope and limitations](#scope-and-limitations)).
 
 ## License
 
