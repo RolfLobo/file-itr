@@ -26,15 +26,6 @@ all common filer types.
 > your password/OTP, make the payment, or submit/e-verify on your behalf — those
 > are your actions by design.
 
-## Contents
-
-- [What it covers](#what-it-covers)
-- [Repository structure](#repository-structure)
-- [Install](#install)
-- [Use](#use)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## What it covers
 
 - Picking the right form (ITR-1/2/3/4) and **comparing old vs new regime**
@@ -108,6 +99,10 @@ cp -r file-itr/skills/itr-india ~/.claude/skills/
 Restart Claude Code (or start a new session) and confirm with `/skills` (or
 however your version lists skills). The skill triggers on ITR/tax-filing
 requests.
+
+Note: unlike the `.skill` bundle, `cp -r` also copies `engine/`, `evals/`, and
+`conftest.py` — the skill doesn't load any of these, so it's harmless to have
+them, but you don't need them for the skill to work.
 
 ### Any other Claude Agent SDK / custom agent
 
