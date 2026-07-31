@@ -1,5 +1,8 @@
 # file-itr
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Skill Bundle](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml/badge.svg)](https://github.com/shivprime94/file-itr/actions/workflows/skill-bundle.yml)
+
 An agent **skill** that helps **any** Indian individual taxpayer prepare and
 e-file an Income Tax Return (ITR-1/2/3/4) on the official portal — under **either
 the old or the new tax regime**. It reconciles salary + freelance/creator/business
@@ -11,9 +14,10 @@ and guides the user through payment and e-verification.
 Its aim is the **lowest legal tax** — claim every deduction the user genuinely
 has and pick the cheaper regime — never to fabricate or inflate anything.
 
-The skill is `skills/itr-india/`. It was distilled from a real end-to-end ITR-3
-filing (salaried + content-creator under 44ADA + listed-share STCG + bank
-interest) and generalised to cover both regimes and all common filer types.
+The skill lives in [`skills/itr-india/`](skills/itr-india/), distilled from a
+real end-to-end ITR-3 filing (salaried + content-creator under 44ADA +
+listed-share STCG + bank interest) and generalised to cover both regimes and
+all common filer types.
 
 > ⚠️ **Not professional tax advice.** This skill makes a return *accurate and
 > defensible*, not minimised at any cost. Indian tax rules change every
@@ -21,6 +25,15 @@ interest) and generalised to cover both regimes and all common filer types.
 > taxpayer remains responsible for the figures filed. The agent will never enter
 > your password/OTP, make the payment, or submit/e-verify on your behalf — those
 > are your actions by design.
+
+## Contents
+
+- [What it covers](#what-it-covers)
+- [Repository structure](#repository-structure)
+- [Install](#install)
+- [Use](#use)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## What it covers
 
@@ -31,35 +44,36 @@ interest) and generalised to cover both regimes and all common filer types.
   ask for** so no legitimate deduction is missed.
 - Reconciling income to source documents (Form 16, 26AS, AIS, bank statements,
   platform payout files) — one number per head, each tied to a document.
-- Presumptive taxation for creators/freelancers/small business (44ADA/44AD,
+- Presumptive taxation for creators/freelancers/small business (44AD/44ADA,
   CBDT code 16021).
-- Capital gains on listed equity/MF/property (111A/112A special rates, quarterly
-  breakup for 234C) and interest/dividends in Schedule OS.
-- Independent tax computation (both regimes) to verify the portal's math.
+- Capital gains on listed equity/MF/property (111A/112A special rates,
+  quarterly breakup for 234C), virtual digital assets/crypto (115BBH), and
+  interest/dividends in Schedule OS.
+- Independent tax computation (both regimes) to verify the portal's math —
+  backed by a separately tested rule engine (see
+  [Repository structure](#repository-structure) below).
 - Driving the e-filing portal, with workarounds for its known quirks
   (logout pop-ups, mat-select dropdowns, the trailing-zero bug, silent
   schedule un-confirmation, and the no-account balance-sheet validation defect).
 - Handing off payment, submission, and e-verification cleanly.
 
-## Repo layout
+## Repository structure
 
-```
-file-itr/
-├── README.md
-├── LICENSE
-├── itr-india.skill                 # zipped skill — one-click install
-└── skills/
-    └── itr-india/
-        ├── SKILL.md                # workflow + judgment (read first)
-        └── references/
-            ├── tax-regimes-and-slabs.md
-            ├── form-selection-ay2026-27.md
-            ├── deductions-old-regime.md
-            ├── income-reconciliation.md
-            ├── creator-44ada.md
-            ├── capital-gains-other-sources.md
-            └── portal-workflow.md
-```
+- [`skills/itr-india/`](skills/itr-india/) — the skill itself. Start with
+  `SKILL.md` (workflow + judgment), then `references/` for regime, deduction,
+  presumptive-taxation, capital-gains/VDA, and portal-workflow detail. This is
+  what ships inside `itr-india.skill`.
+- [`skills/itr-india/engine/`](skills/itr-india/engine/) — a separate, tested
+  Python engine (scope check → bucketing → set-off → rates → interest) that
+  independently recomputes the tax to audit the skill's numbers. It is **not**
+  part of the installable bundle. See its own
+  [README](skills/itr-india/engine/README.md), and run its tests with
+  `pytest skills/itr-india/engine/tests -v`.
+- [`itr-india.skill`](itr-india.skill) — the zipped, one-click-install bundle.
+  CI rebuilds it deterministically whenever `SKILL.md`, `references/`, or
+  `evals/` change — never hand-edit it.
+- [`scripts/`](scripts/) — bundle build tooling.
+- [`.github/workflows/`](.github/workflows/) — CI.
 
 ## Install
 
@@ -126,6 +140,16 @@ complete.
 Form 16(s), Form 26AS, AIS/TIS, bank statements for the financial year, any
 broker/capital-gains statement, and any platform payout files (Stripe/YouTube/
 X/etc.). For the portal steps, you log in yourself and the agent drives the form.
+
+## Contributing
+
+Bug reports, corrected reference material, and engine improvements are
+welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, running the
+test suite, and commit/PR conventions.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=shivprime94/file-itr&type=Date)](https://star-history.com/#shivprime94/file-itr&Date)
 
 ## License
 
