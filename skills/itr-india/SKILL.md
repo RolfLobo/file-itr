@@ -204,6 +204,10 @@ choose the regime, and to explain every rupee to the user.
 
 ```python
 # Slabs FY 2025-26 (AY 2026-27). Re-confirm the current year's slabs first.
+# These numbers are also carried in references/tax-regimes-and-slabs.md (prose,
+# for explaining the choice to the user) and, with full citations, in
+# engine/rules/ay2026_27.py (a separate tested engine, not loaded by this
+# skill). Update all three if a slab or rate changes.
 def tax_new(x):
     slabs=[(400000,0),(800000,.05),(1200000,.10),(1600000,.15),
            (2000000,.20),(2400000,.25)]

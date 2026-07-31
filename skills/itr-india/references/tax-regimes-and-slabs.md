@@ -2,7 +2,9 @@
 
 > Re-confirm the current assessment year's numbers from incometax.gov.in or the
 > Finance Act before relying on them. Figures below are **FY 2025-26 (AY 2026-27)**
-> and drift year to year.
+> and drift year to year. The same numbers are also hardcoded in `SKILL.md`'s
+> "Verify the math" snippet and, with full citations, in
+> `engine/rules/ay2026_27.py` — update all three together.
 
 ## The decision in one line
 

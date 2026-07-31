@@ -2,6 +2,11 @@ from datetime import date
 from decimal import Decimal
 from engine.rulebase import Rule, RuleTable
 
+# This engine is not wired into SKILL.md (see engine/README.md). The slab,
+# rebate, surcharge, and cess values below are independently duplicated in
+# SKILL.md's "Verify the math" snippet and in references/tax-regimes-and-slabs.md
+# (prose) — update all three together if a rate or threshold changes.
+
 _CLEARTAX_STCG = "https://cleartax.in/s/short-term-capital-gain-on-shares"
 _QUICKO_HP = "https://learn.quicko.com/capital-gains-holding-period-tax"
 _CLEARTAX_50AA = "https://cleartax.in/s/section-50aa-income-tax-act"
