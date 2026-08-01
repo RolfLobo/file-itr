@@ -96,10 +96,25 @@ _CLEARTAX_112 = "https://cleartax.in/s/section-112-calculate-income-tax-on-long-
 # income against the basic exemption limit"; non-residents excluded.
 _QUICKO_112 = "https://learn.quicko.com/section-112-of-income-tax-act-capital-gain-long-term-capital-assets"
 _UPSTOX_BEL = "https://upstox.com/news/personal-finance/tax/can-i-adjust-stcg-ltcg-against-the-basic-exemption-limit-under-both-old-and-new-tax-regimes/article-165394/"
+# "Section 55 in The Income Tax Act, 1961" — bare Act text for clause (2)(ac).
+_IK_55 = "https://indiankanoon.org/doc/1704110/"
+# msassociates.pro — states the s.55(2)(ac) formula plainly: COA of an equity
+# share/equity-MF-unit acquired before 1-Feb-2018 (for s.112A purposes) is the
+# higher of actual cost or the lower of FMV as on 31-Jan-2018 and full value
+# of consideration. Corroborates the loss-disallowed proviso (vrdnation.com,
+# search-verified 2026-08-01): the formula can only shield pre-2018 gains, it
+# cannot manufacture a loss beyond the actual-cost loss.
+_MSASSOCIATES_55 = "https://www.msassociates.pro/articles/section-55-2-ac-cost-of-acquisition/"
 # cleartax surcharge page — 10/15/25/37% at 50L/1cr/2cr/5cr, new-regime cap
 # 25%, "Surcharge has been capped at 15% on dividend income and Capital gains
 # covered under section 111A, 112 and 112A", marginal-relief principle.
 _CLEARTAX_SURCHARGE = "https://cleartax.in/s/marginal-relief-surcharge"
+# mstock.com — "surcharge must be computed income-wise" when dividend or
+# specified CG is present; corroborates the 15% cap reaching dividend tax
+# specifically (search-verified 2026-08-01; the attribution *method* for
+# dividend commingled in progressive slab income is not stated by any fetched
+# source — see engine.dividend_surcharge_attribution's contested_note).
+_MSTOCK_SURCHARGE = "https://www.mstock.com/articles/surcharge-on-tax-explained"
 _CLEARTAX_CESS = "https://cleartax.in/s/cess-on-income-tax"
 # charteredclub 288A/288B page — both round to nearest ₹10, paise ignored,
 # last digit >= 5 up, < 5 down.
@@ -270,6 +285,13 @@ TABLE = RuleTable([
          authority="s.112A — first ₹1.25L of 112A LTCG exempt (aggregate, per AY)",
          source_primary=_BAJAJAMC_CG, source_secondary=_CLEARTAX_112,
          effective_from=date(2024, 7, 23), effective_to=None, confidence="settled"),
+    Rule(key="s55.grandfather_112a_coa", value=True,
+         authority="s.55(2)(ac) — COA of an equity share/equity-MF unit acquired "
+                   "before 1-Feb-2018, for s.112A purposes, is the higher of actual "
+                   "cost or the lower of FMV as on 31-Jan-2018 and the full value of "
+                   "consideration on transfer",
+         source_primary=_IK_55, source_secondary=_MSASSOCIATES_55,
+         effective_from=date(2018, 4, 1), effective_to=None, confidence="settled"),
     Rule(key="rate.ltcg_112", value=Decimal("0.125"),
          authority="s.112 — 12.5% without indexation for transfers on/after 23-Jul-2024",
          source_primary=_CLEARTAX_112, source_secondary=_QUICKO_112,
@@ -311,6 +333,22 @@ TABLE = RuleTable([
          authority="surcharge on tax on s.111A/112/112A gains (and dividend) capped at 15%",
          source_primary=_CLEARTAX_SURCHARGE, source_secondary=_CLEARTAX_SLABS,
          effective_from=date(2025, 4, 1), effective_to=None, confidence="settled"),
+    Rule(key="engine.dividend_surcharge_attribution", value=True,
+         authority="engine policy — surcharge.cg_dividend_cap's 15% cap on dividend "
+                   "tax is settled, but the Act doesn't prescribe how to compute tax "
+                   "'attributable to' dividend when it's commingled in progressive "
+                   "slab income (unlike 111A/112/112A, which are already separately "
+                   "rate-bucketed); engine attributes it as the marginal top slice "
+                   "of slab_base, consistent with the existing marginal-relief "
+                   "shave-slab-first policy (see surcharge.marginal_relief)",
+         source_primary=_CLEARTAX_SURCHARGE, source_secondary=_MSTOCK_SURCHARGE,
+         effective_from=date(2025, 4, 1), effective_to=None, confidence="contested",
+         contested_note="Attribution order matters when both dividend and CG are "
+                        "present with a surcharge-rate step in between. Policy: "
+                        "dividend attributed against the marginal slab-rate slice; "
+                        "CG buckets keep their own already-settled flat-rate tax as "
+                        "the capped amount. Revisit against the ITD utility if this "
+                        "engine is ever validated against real portal output."),
     Rule(key="surcharge.marginal_relief", value=True,
          authority="proviso to surcharge — tax+surcharge capped at tax-at-threshold plus "
                    "income in excess of the threshold",
